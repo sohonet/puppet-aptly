@@ -4,7 +4,7 @@
 #
 class aptly::install {
 
-  if ! defined(User[$aptly::user]) {
+  if $aptly::manage_user {
     user { $aptly::user:
       ensure  => present,
       uid     => $aptly::uid,
@@ -12,9 +12,7 @@ class aptly::install {
       shell   => '/bin/bash',
       require => Group[$aptly::group],
     }
-  }
 
-  if ! defined(Group[$aptly::group]) {
     group { $aptly::group:
       ensure => present,
       gid    => $aptly::gid,
@@ -39,7 +37,7 @@ class aptly::install {
     case $::osfamily {
       'Debian': {
 
-        include 'apt'
+        include '::apt'
 
         apt::source { 'aptly':
           location => $aptly::repo_location,
@@ -55,9 +53,7 @@ class aptly::install {
           },
         }
 
-        Apt::Source['aptly'] ~>
-        Class['apt::update'] ->
-        Package['aptly']
+        Apt::Source['aptly'] ~> Class['apt::update'] -> Package['aptly']
       }
       default: {
         fail("Installation of the repository not supported on ${::operatingsystem}")
@@ -78,7 +74,7 @@ class aptly::install {
   file{ '/etc/init.d/aptly':
     ensure  => present,
     content => template('aptly/aptly.init.d.erb'),
-    mode    => '0744',
+    mode    => '0755',
     owner   => 'root',
     group   => 'root',
   }
@@ -93,7 +89,7 @@ class aptly::install {
   file{ '/etc/init.d/aptly-api':
     ensure  => present,
     content => template('aptly/aptly-api.init.d.erb'),
-    mode    => '0744',
+    mode    => '0755',
     owner   => 'root',
     group   => 'root',
   }

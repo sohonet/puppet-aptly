@@ -3,7 +3,6 @@ require 'puppet/util/execution'
 module Puppet_X
   module Aptly
     module Cli
-
       # Executes an aptly command via the command-line
       #
       # @param object [Symbol] the type of aptly object to work on, aka:
@@ -27,31 +26,36 @@ module Puppet_X
       #   execution of the command fails. Returns the error message without
       #   raising an exception if false and an exception occurs.
       #
-      # @return [String] or an exception in case of error 
+      # @return [String] or an exception in case of error
       def self.execute(options = {})
+        uid = options.fetch(:uid)
+        gid = options.fetch(:gid)
         object = options.fetch(:object, :mirror)
         action = options.fetch(:action, '')
         exceptions = options.fetch(:exceptions, :true)
         arguments = options.fetch(:arguments, [])
-        flags = options.fetch(:flags,{})
+        flags = options.fetch(:flags, {})
 
         cmd = 'aptly '
-        cmd << flags.map{|k,v| v.to_s == '' ? "-#{k}" : "-#{k}=#{v}".strip unless v == 'undef' }.join(' ')
+        cmd << flags.map do |k, v|
+          unless v == 'undef'
+            v.to_s == '' ? "-#{k}" : "-#{k}=#{v}".strip
+          end
+        end.join(' ')
 
         raise Puppet::Error, "Unknown aptly object: #{object}" unless [:mirror, :repo, :snapshot, :publish, :package, :db].include? object
         cmd << " #{object} #{action} "
-        cmd << arguments.delete_if{|val| val == 'undef'}.join(' ')
+        cmd << arguments.delete_if { |val| val == 'undef' }.join(' ')
 
         begin
           Puppet.debug("Executing: #{cmd}")
-          result = Puppet::Util::Execution.execute(cmd)
+          result = Puppet::Util::Execution.execute(cmd, uid: uid, gid: gid)
         rescue => e
           raise Puppet::Error, e.message if exceptions
           e.message
         end
         result
       end
-
     end
   end
 end

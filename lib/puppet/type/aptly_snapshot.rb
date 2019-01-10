@@ -1,39 +1,49 @@
 require 'puppet/parameter/boolean'
 
 Puppet::Type.newtype(:aptly_snapshot) do
-  @doc = %q{Creates a new Aptly Snapshot
-  }
+  @doc = 'Creates a new Aptly Snapshot
+  '
 
   ensurable
 
-  newparam(:name, :namevar => true) do
-    desc "The name of the Aptly snapshot. Example : weekly-update"
+  newparam(:name, namevar: true) do
+    desc 'The name of the Aptly snapshot. Example : weekly-update'
   end
 
-  newparam(:force, :boolean => true, :parent => Puppet::Parameter::Boolean) do
-    desc ""
+  newparam(:force, boolean: true, parent: Puppet::Parameter::Boolean) do
+    desc ''
     defaultto :true
   end
 
+  newparam(:uid) do
+    desc 'UID of the OS user which will run the cli'
+    defaultto '450'
+  end
+
+  newparam(:gid) do
+    desc 'GID of the OS user which will run the cli'
+    defaultto '450'
+  end
+
   newparam(:source_type) do
-    desc "Type of the source for the snapshot : mirror, repo, or empty. Defaults to repository."
+    desc 'Type of the source for the snapshot : mirror, repo, or empty. Defaults to repository.'
     newvalues(:mirror, :repository, :empty)
     defaultto :repository
   end
 
   newparam(:source_name) do
-    desc ""
+    desc ''
   end
 
   newparam(:description) do
-    desc ""
+    desc ''
   end
 
   newparam(:snapshots) do
-    desc ""
+    desc ''
   end
 
   newparam(:package_refs) do
-    desc ""
+    desc ''
   end
 end
