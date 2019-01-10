@@ -46,8 +46,8 @@ What is this module capable of doing?
  * Managing the init.d service file
  * Managing apt mirrors, repositories, snapshots and publications
  
-The aptly service will listen on port you configure (example: 80) on every interfaces (configurable)
-using the `aptly serve -listen=":80"` command.
+The aptly service will listen on port you configure (example: 8080) on every interfaces (configurable)
+using the `aptly serve -listen=":8080"` command.
 
 If you want to make the repository being served by an apache, nginx or whatever
 else, just disable the service and setup the http server you want for the HTTP(S)
@@ -151,7 +151,7 @@ Or using hiera:
 ---
 aptly::enable_api: true
 aptly::api_port: 42000
-aptly::api_nolock: 10.0.0.123
+aptly::api_bind: 10.0.0.123
 aptly::api_nolock: true
 ```
 
@@ -362,7 +362,7 @@ Default: `true` (service enabled)
 
 Port for the Aptly webserver
 
-Default : `80`
+Default : `8080`
 
 ##### `bind`
 
@@ -376,6 +376,11 @@ Default: `0.0.0.0`
 Path of the configuration file to be used by the aptly service.
 
 Default: `/etc/aptly.conf`
+
+##### `manage_user`
+Whethere should this module manage aptly user or not
+
+Default: `true`
 
 ##### `user`
 
@@ -411,7 +416,7 @@ Default: `/var/aptly`
 
 Architectures managed by the repo.
 
-Default: `[]` (empty means all architectures)
+Default: `["amd64"]`
 
 ##### `ppa_dist`
 
@@ -470,7 +475,7 @@ Default : `false`
 
 Port for the Aptly API service.
 
-Default : `8080`
+Default : `8081`
 
 ##### `api_bind`
 
@@ -494,18 +499,30 @@ Default : `true`
 
 #### Define aptly::mirror
 
-##### `location`
-
-Location of the repository to mirror.
-
-Default: `undef`
-
 ##### `ensure`
 
 Ensures if the mirror must be `present` (should exist) or `absent` (or be
 destroyed).
 
 Default: `present`
+
+##### `uid`
+
+UID of the OS user which will run the cli
+
+Default: `450`
+
+##### `gid`
+
+GID of the OS user which will run the cli
+
+Default: `450`
+
+##### `location`
+
+Location of the repository to mirror.
+
+Default: `undef`
 
 ##### `distribution`
 
@@ -546,6 +563,18 @@ destroyed).
 
 Default: `present`
 
+##### `uid`
+
+UID of the OS user which will run the cli
+
+Default: `450`
+
+##### `gid`
+
+GID of the OS user which will run the cli
+
+Default: `450`
+
 ##### `default_distribution`
 
 Default distribution (used only when publishing).
@@ -559,6 +588,25 @@ Default component (used only when publishing).
 Default: `main`
 
 #### Define aptly::snapshot
+
+##### `ensure`
+
+Ensures if the snapshot must be `present` (should exist) or `absent` (or be
+destroyed).
+
+Default: `present`
+
+##### `uid`
+
+UID of the OS user which will run the cli
+
+Default: `450`
+
+##### `gid`
+
+GID of the OS user which will run the cli
+
+Default: `450`
 
 ##### `source_type`
 
@@ -576,14 +624,26 @@ Name of the source to create snapshot from.
 
 Default: `undef`
 
+#### Define aptly::publish
+
 ##### `ensure`
 
-Ensures if the snapshot must be `present` (should exist) or `absent` (or be
+Ensures that the publication is `present` (should exist) or `absent` (or should be
 destroyed).
 
 Default: `present`
 
-#### Define aptly::publish
+##### `uid`
+
+UID of the OS user which will run the cli
+
+Default: `450`
+
+##### `gid`
+
+GID of the OS user which will run the cli
+
+Default: `450`
 
 ##### `source_type`
 
@@ -594,20 +654,11 @@ Type of source to publish. Supported values are:
 
 Default: `undef`
 
-##### `source_name`
+##### `distribution`
 
-Name of the source to publish.
+Distribution name to publish.
 
-Default: `undef`
-
-##### `ensure`
-
-Ensures that the publication is `present` (should exist) or `absent` (or should be
-destroyed).
-
-Default: `present`
-
-
+Default: `"${::lsbdistcodename}-${name}"`
 
 ## Limitations
 

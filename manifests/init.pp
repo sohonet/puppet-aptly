@@ -14,6 +14,7 @@ class aptly (
   $port                 = $aptly::params::port,
   $bind                 = $aptly::params::bind,
   $config_filepath      = $aptly::params::config_filepath,
+  $manage_user          = $aptly::params::manage_user,
   $user                 = $aptly::params::user,
   $uid                  = $aptly::params::uid,
   $group                = $aptly::params::group,
@@ -69,8 +70,5 @@ class aptly (
     'API Bind IP address is not correct'
   )
 
-  class { 'aptly::install': } ->
-  class { 'aptly::config':  } ~>
-  class { 'aptly::service': } ->
-  Class['::aptly']
+  class { '::aptly::install': } -> class { '::aptly::config':  } ~> class { '::aptly::service': } -> Class['::aptly']
 }
